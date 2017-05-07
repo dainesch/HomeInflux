@@ -72,7 +72,6 @@ public class InfluxOutput implements Configurable, Runnable, AutoCloseable {
 
             BatchPoints batchPoints = BatchPoints
                     .database(dbName)
-                    .retentionPolicy("autogen")
                     .consistency(ConsistencyLevel.ALL)
                     .build();
             batchPoints.getPoints().addAll(points);
