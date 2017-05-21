@@ -7,6 +7,7 @@ HomeInflux collects data from a set of plugins and stores it in influxdb. There 
 
 # Plugins
 
+* Afterburner plugin: Collects CPU/GPU temps and many other statistics from MSI Afterburner Remote Server 
 * Hue Sensor plugin: reads the available data from your Hue sensors (temp, light, presence)
 * Fritz.Box plugin: reads the upstream and downstream history from your Fritz Box (TR064)
 * SNMP plugin: reads the desired SNMP OIDs
