@@ -46,14 +46,15 @@ import org.w3c.dom.NodeList;
 
 /**
  * Plugin that reads data using the TR064 interface of the fritz box.
- * 
+ *
  */
 public class FritzMonitorInput extends InputPlugin {
 
     private static final Logger LOG = LoggerFactory.getLogger(FritzMonitorInput.class);
 
     private static final String CONFIG_KEY = "fritzbox";
-    private static final String SOAP_URL = "/tr064/upnp/control/wancommonifconfig1";
+    private static final int SOAP_PORT = 49443;
+    private static final String SOAP_URL = "/upnp/control/wancommonifconfig1";
     private static final String SOAP_ACTION = "SOAPAction";
     private static final String SOAP_ACTION_VAL = "urn:dslforum-org:service:WANCommonInterfaceConfig:1#X_AVM-DE_GetOnlineMonitor";
     private static final String SOAP = "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
@@ -82,8 +83,6 @@ public class FritzMonitorInput extends InputPlugin {
 
     private List<Long> lastDS = new ArrayList<>();
     private List<Long> lastUS = new ArrayList<>();
-
-
 
     @Override
     public void start() {
@@ -154,7 +153,7 @@ public class FritzMonitorInput extends InputPlugin {
             current.remove(current.size() - 1);
             deleted++;
         }
-        
+
         return current;
     }
 
@@ -169,11 +168,13 @@ public class FritzMonitorInput extends InputPlugin {
 
     private Map<String, String> doRequest() {
         try (CloseableHttpResponse response = httpclient.execute(target, postRequest, context)) {
-
+            
+            byte[] content = EntityUtils.toByteArray(response.getEntity());
+            
             MessageFactory factory = MessageFactory.newInstance();
             SOAPMessage message = factory.createMessage(
                     new MimeHeaders(),
-                    new ByteArrayInputStream(EntityUtils.toByteArray(response.getEntity())));
+                    new ByteArrayInputStream(content));
 
             SOAPBody body = message.getSOAPBody();
 
@@ -212,7 +213,7 @@ public class FritzMonitorInput extends InputPlugin {
             SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(),
                     SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
-            target = new HttpHost(hostname, 443, "https");
+            target = new HttpHost(hostname, SOAP_PORT, "https");
             CredentialsProvider credsProvider = new BasicCredentialsProvider();
             credsProvider.setCredentials(
                     new AuthScope(target.getHostName(), target.getPort()),
@@ -280,6 +281,9 @@ public class FritzMonitorInput extends InputPlugin {
 
     @Override
     public boolean testConfig() {
+        if (!on) {
+            return true;
+        }
         prepare();
         Map<String, String> values = doRequest();
 
@@ -288,9 +292,9 @@ public class FritzMonitorInput extends InputPlugin {
 
     @Override
     public void close() throws Exception {
-       if (httpclient!=null) {
-           httpclient.close();
-       }
+        if (httpclient != null) {
+            httpclient.close();
+        }
     }
 
 }

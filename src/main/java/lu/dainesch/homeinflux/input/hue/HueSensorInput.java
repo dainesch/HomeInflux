@@ -83,7 +83,9 @@ public class HueSensorInput extends InputPlugin {
 
     @Override
     public boolean testConfig() {
-
+        if (!on) {
+            return true;
+        }
         try {
             hue = new HueComm(bridgeIp, bridgeKey);
             if (!hue.testConnection()) {

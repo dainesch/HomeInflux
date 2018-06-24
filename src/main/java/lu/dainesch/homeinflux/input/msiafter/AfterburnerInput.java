@@ -117,7 +117,9 @@ public class AfterburnerInput extends InputPlugin {
 
     @Override
     public boolean testConfig() {
-
+        if (!on) {
+            return true;
+        }
         HttpAuthenticationFeature digestAuth = HttpAuthenticationFeature.universal(USERNAME, key);
 
         client = ClientBuilder.newClient();
